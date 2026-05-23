@@ -4,10 +4,12 @@ import { ArrowLeft, ChevronRight, Sparkles } from "lucide-react"
 import { CATEGORY_STYLE } from "../data/options"
 import ClubCard from "./ClubCard"
 import ClubModal from "./ClubModal"
+import ChatAnalyzer from "./ChatAnalyzer"
 import ScoreRing from "./ScoreRing"
 
 export default function ResultsStep({ profile, results, onRestart }) {
   const [selected, setSelected] = useState(null)
+  const [view, setView] = useState("results")
   const top = results[0]
   const topCat = top ? CATEGORY_STYLE[top.club.category] ?? CATEGORY_STYLE.Professional : null
 
@@ -60,7 +62,37 @@ export default function ResultsStep({ profile, results, onRestart }) {
         </div>
       </div>
 
-      {top && topCat && (
+      <div style={{ display: "flex", gap: 8, marginBottom: 22 }}>
+        {[
+          { key: "results", label: "Results" },
+          { key: "chat", label: "Analyzer Chat" },
+        ].map((tab) => {
+          const active = view === tab.key
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setView(tab.key)}
+              style={{
+                padding: "8px 14px",
+                borderRadius: 999,
+                border: active ? "1px solid rgba(168,226,55,0.6)" : "1px solid rgba(255,255,255,0.08)",
+                background: active ? "rgba(168,226,55,0.12)" : "transparent",
+                color: active ? "#A8E237" : "#8C8890",
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.62rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.16em",
+                cursor: "pointer",
+                transition: "all 0.2s",
+              }}
+            >
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {view === "results" && top && topCat && (
         <div style={{ marginBottom: 32 }}>
           <p
             style={{
@@ -175,28 +207,34 @@ export default function ResultsStep({ profile, results, onRestart }) {
         </div>
       )}
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-        <p
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.56rem",
-            color: "#8C8890",
-            textTransform: "uppercase",
-            letterSpacing: "0.18em",
-          }}
-        >
-          All {results.length} Organizations
-        </p>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.56rem", color: "#8C8890" }}>
-          {results.filter((r) => r.score >= 50).length} strong matches
-        </span>
-      </div>
+      {view === "results" && (
+        <>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <p
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.56rem",
+                color: "#8C8890",
+                textTransform: "uppercase",
+                letterSpacing: "0.18em",
+              }}
+            >
+              All {results.length} Organizations
+            </p>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.56rem", color: "#8C8890" }}>
+              {results.filter((r) => r.score >= 50).length} strong matches
+            </span>
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {results.slice(1).map((r, i) => (
-          <ClubCard key={r.club.id} result={r} rank={i + 1} onClick={() => setSelected(r)} />
-        ))}
-      </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {results.slice(1).map((r, i) => (
+              <ClubCard key={r.club.id} result={r} rank={i + 1} onClick={() => setSelected(r)} />
+            ))}
+          </div>
+        </>
+      )}
+
+      {view === "chat" && <ChatAnalyzer profile={profile} results={results} />}
 
       {selected && <ClubModal result={selected} onClose={() => setSelected(null)} />}
     </div>
