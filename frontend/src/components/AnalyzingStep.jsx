@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import { motion } from "motion/react"
 import { Check, Sparkles } from "lucide-react"
-import { CLUBS } from "../data/clubs"
 
 const ANALYSIS_STEPS_TEXT = [
   "Parsing your profile...",
@@ -11,7 +10,7 @@ const ANALYSIS_STEPS_TEXT = [
   "Generating recommendations...",
 ]
 
-export default function AnalyzingStep({ profile, usingGemini, modelName }) {
+export default function AnalyzingStep({ profile, usingGemini, modelName, clubs = [] }) {
   const [progress, setProgress] = useState(0)
   const [activeStep, setActiveStep] = useState(0)
 
@@ -29,7 +28,7 @@ export default function AnalyzingStep({ profile, usingGemini, modelName }) {
     return () => clearInterval(iv)
   }, [usingGemini])
 
-  const scanned = Math.floor((progress / 90) * CLUBS.length)
+  const scanned = Math.floor((progress / 90) * clubs.length)
 
   return (
     <div
@@ -169,7 +168,7 @@ export default function AnalyzingStep({ profile, usingGemini, modelName }) {
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 5 }}>
-          {CLUBS.map((club, i) => (
+          {clubs.map((club, i) => (
             <div
               key={club.id}
               style={{

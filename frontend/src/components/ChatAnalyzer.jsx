@@ -2,6 +2,11 @@ import { useMemo, useState } from "react"
 import { motion } from "motion/react"
 import { Bot, MessageSquare, Sparkles } from "lucide-react"
 
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? "http://localhost:5001/api" : "/api")
+const ANALYZE_URL = import.meta.env.VITE_ANALYZE_URL || `${API_URL}/analyze`
+
 const SUGGESTIONS = [
   "I want leadership experience",
   "Show cultural organizations",
@@ -10,7 +15,28 @@ const SUGGESTIONS = [
 ]
 
 function pickTop(results, count) {
-  return results.slice(0, count).map((r) => r.club.name)
+  return results.slice(0, count).map((r) => r.club?.name).filter(Boolean)
+}
+
+function normalizeRecommendations(recommendations, results) {
+  const byId = new Map(results.map((r) => [r.club.id, r.club]))
+
+  return recommendations
+    .map((item) => {
+      const id = item?.id ?? item?.clubId ?? item?.club_id ?? item?.club?.id
+      const club = byId.get(String(id ?? "").trim()) ?? item?.club ?? null
+
+      if (!club) {
+        return null
+      }
+
+      return {
+        club,
+        score: Number(item?.score ?? item?.matchScore ?? 0) || 0,
+        matchReasons: Array.isArray(item?.matchReasons) ? item.matchReasons : [],
+      }
+    })
+    .filter(Boolean)
 }
 
 function inferNeeds(profile) {
@@ -53,7 +79,7 @@ function buildReply(message, profile, results) {
   const top = pickTop(results, 3)
 
   if (msg.includes("leadership")) {
-    const picks = findMatchesByKeyword(results, "leadership").slice(0, 3).map((r) => r.club.name)
+    const picks = findMatchesByKeyword(results, "leadership").slice(0, 3).map((r) => r.club?.name)
     return `Leadership is a great focus. Start with ${picks.join(", ") || top.join(", ")}. Want me to rank by officer mentorship or event cadence?`
   }
 
@@ -61,12 +87,12 @@ function buildReply(message, profile, results) {
     const picks = findMatchesByKeyword(results, "culture")
       .concat(findMatchesByKeyword(results, "cultural"))
       .slice(0, 3)
-      .map((r) => r.club.name)
+      .map((r) => r.club?.name)
     return `For cultural community, try ${picks.join(", ") || top.join(", ")}. Any specific background you want prioritized?`
   }
 
   if (msg.includes("gaming") || msg.includes("esports")) {
-    const picks = findMatchesByKeyword(results, "gaming").slice(0, 2).map((r) => r.club.name)
+    const picks = findMatchesByKeyword(results, "gaming").slice(0, 2).map((r) => r.club?.name)
     return `For gaming, ${picks.join(" and ") || top[0]} is the best fit. Want competitive leagues, casual hangouts, or content creation?`
   }
 
@@ -92,13 +118,52 @@ export default function ChatAnalyzer({ profile, results }) {
 
   const needs = useMemo(() => inferNeeds(profile), [profile])
 
-  const send = (text) => {
+  const send = async (text) => {
     const trimmed = text.trim()
     if (!trimmed) return
 
-    const reply = buildReply(trimmed, profile, results)
-    setMessages((m) => [...m, { role: "user", text: trimmed }, { role: "assistant", text: reply }])
-    setInput("")
+    // Add the user message locally first
+    setMessages((m) => [...m, { role: "user", text: trimmed }])
+
+    // Try backend analyze API which can re-rank clubs based on the message
+    try {
+      const res = await fetch(`${ANALYZE_URL}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile, query: trimmed }),
+      })
+
+      if (!res.ok) {
+        throw new Error(`Analyze request failed with status ${res.status}`)
+      }
+
+      const matched = await res.json()
+
+      let replyText = ""
+
+      if (Array.isArray(matched)) {
+        const normalized = normalizeRecommendations(matched, results)
+
+        const top = pickTop(normalized, 3)
+        replyText = top.length > 0 ? `Updated recommendations: ${top.join(", ")}` : buildReply(trimmed, profile, results)
+      } else if (matched && typeof matched === "object") {
+        const recommendations = Array.isArray(matched.recommendations) ? matched.recommendations : []
+        const normalized = normalizeRecommendations(recommendations, results)
+        const top = pickTop(normalized, 3)
+        replyText = matched.reply || (top.length > 0 ? `Updated recommendations: ${top.join(", ")}` : buildReply(trimmed, profile, results))
+      } else {
+        replyText = buildReply(trimmed, profile, results)
+      }
+
+      setMessages((m) => [...m, { role: "assistant", text: replyText }])
+    } catch (err) {
+      // On error, fallback to local reply
+      const reply = buildReply(trimmed, profile, results)
+      setMessages((m) => [...m, { role: "assistant", text: reply }])
+      console.error("ChatAnalyzer analyze error:", err)
+    } finally {
+      setInput("")
+    }
   }
 
   return (

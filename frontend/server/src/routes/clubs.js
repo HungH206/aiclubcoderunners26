@@ -1,26 +1,42 @@
 import { Router } from "express"
-import { getDb } from "../db.js"
+import { loadSharedClubs } from "../lib/clubsData.js"
 
 const router = Router()
 
+// GET all clubs
 router.get("/", async (_req, res) => {
   try {
-    const db = await getDb()
-    const clubs = await db.collection("clubs").find({}).sort({ name: 1 }).toArray()
+    const clubs = await loadSharedClubs()
+
     res.json(clubs)
   } catch (err) {
-    res.status(500).json({ error: "failed_to_fetch_clubs" })
+    console.error(err)
+
+    res.status(500).json({
+      error: "failed_to_fetch_clubs",
+    })
   }
 })
 
+// GET single club
 router.get("/:id", async (req, res) => {
   try {
-    const db = await getDb()
-    const club = await db.collection("clubs").findOne({ id: req.params.id })
-    if (!club) return res.status(404).json({ error: "not_found" })
+    const clubs = await loadSharedClubs()
+    const club = clubs.find((item) => item.id === req.params.id)
+
+    if (!club) {
+      return res.status(404).json({
+        error: "not_found",
+      })
+    }
+
     res.json(club)
   } catch (err) {
-    res.status(500).json({ error: "failed_to_fetch_club" })
+    console.error(err)
+
+    res.status(500).json({
+      error: "failed_to_fetch_club",
+    })
   }
 })
 

@@ -1,13 +1,16 @@
-import { useState } from "react"
-import { CLUBS } from "./data/clubs"
+import { useEffect, useState } from "react"
+
 import { createEmptyProfile, getMatches } from "./data/profile"
+
 import QuizShell from "./components/QuizShell"
 import AnalyzingStep from "./components/AnalyzingStep"
 import ResultsStep from "./components/ResultsStep"
+
 import Q1 from "./components/quiz/Q1"
 import Q2 from "./components/quiz/Q2"
 import Q3 from "./components/quiz/Q3"
 import Q4 from "./components/quiz/Q4"
+
 import ReviewStep from "./components/quiz/ReviewStep"
 
 const APP_VARS = {
@@ -24,102 +27,445 @@ const APP_VARS = {
 }
 
 const QUIZ_STEPS = ["q1", "q2", "q3", "q4"]
-const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY
-const GEMINI_MODEL = "gemini-2.0-flash"
 
-async function analyzeWithGemini(profile) {
-  if (!GEMINI_KEY) throw new Error("no-key")
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? "http://localhost:5001/api" : "/api")
+const ANALYZE_URL = import.meta.env.VITE_ANALYZE_URL || `${API_URL}/analyze`
+const TRACKING_API_URL =
+  import.meta.env.VITE_TRACKING_API_URL ||
+  (import.meta.env.DEV ? "http://localhost:5002/api" : "/api")
+const GEMINI_MODEL = import.meta.env.VITE_GEMINI_MODEL || "gemini-2.5-flash"
+const USE_GEMINI = import.meta.env.VITE_USE_GEMINI !== "false"
 
-  const clubsText = CLUBS.map((c) =>
-    `ID: ${c.id}\nName: ${c.name}\nCategory: ${c.category}\nMajor Focus: ${c.majorFocus.join(", ")}\nEthnic Focus: ${c.ethnicFocus.join(", ")}\nTags: ${c.tags.join(", ")}\nDescription: ${c.description.slice(0, 180)}`
-  ).join("\n---\n")
+function normalizeRecommendationItem(item, byId) {
+  const rawId =
+    item?.id ??
+    item?.clubId ??
+    item?.club_id ??
+    item?.club?.id ??
+    item?.club?.clubId ??
+    ""
 
-  const prompt = `You are a campus club matching AI for Houston Community College. Rank ALL ${CLUBS.length} organizations for this student.\n\nSTUDENT:\nName: ${profile.name}\nMajor: ${profile.major}\nBackground: ${profile.ethnicity}\nInterests: ${profile.interests.join(", ") || "None specified"}\n\nORGANIZATIONS:\n${clubsText}\n\nScoring (0-100 total):\n- Major alignment: 0-45pts (specific match scores higher; "all majors" = 20pts)\n- Cultural connection: 0-35pts (ethnic match = 35pts; open-to-all = 10pts)\n- Interest overlap: 0-20pts (7pts per matching interest, max 20)\n\nReturn ONLY a JSON array of all ${CLUBS.length} clubs sorted by score descending:\n[{"id":"club_id","score":85,"matchReasons":["reason 1","reason 2"]}]`
+  const id = String(rawId).trim()
+  const club = byId.get(id) ?? item?.club ?? null
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: "application/json", temperature: 0.2 },
-      }),
-    }
-  )
+  if (!club) {
+    return null
+  }
 
-  if (!res.ok) throw new Error(`HTTP ${res.status}`)
-  const data = await res.json()
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-  if (!text) throw new Error("empty response")
+  return {
+    club,
+    score: Number(item?.matchScore ?? item?.score ?? 0) || 0,
+    matchReasons: Array.isArray(item?.matchReasons)
+      ? item.matchReasons
+      : item?.reasoning
+        ? [item.reasoning]
+        : [],
+  }
+}
 
-  const rankings = JSON.parse(text)
-  const byId = new Map(CLUBS.map((c) => [c.id, c]))
+function parseRecommendations(data) {
+  if (Array.isArray(data)) {
+    return data
+  }
 
-  return rankings
-    .map((r) => {
-      const club = byId.get(r.id)
-      if (!club) return null
-      const score = Math.max(0, Math.min(100, Number(r.score) || 0))
-      const matchReasons = Array.isArray(r.matchReasons) ? r.matchReasons.slice(0, 3) : []
-      return { club, score, matchReasons }
+  if (Array.isArray(data?.recommendations)) {
+    return data.recommendations
+  }
+
+  if (Array.isArray(data?.rankings)) {
+    return data.rankings
+  }
+
+  return null
+}
+
+function normalizeRecommendations(items, clubs) {
+  const byId = new Map(clubs.map((c) => [c.id, c]))
+
+  return items
+    .map((item) => {
+      const result = normalizeRecommendationItem(item, byId)
+
+      if (!result) {
+        console.warn("Missing club mapping from backend:", item)
+      }
+
+      return result
     })
     .filter(Boolean)
 }
 
-function localMatch(profile) {
-  return getMatches(profile)
+function getVisitorKey() {
+  const storageKey = "clubmatch_visitor_key"
+  const existing = localStorage.getItem(storageKey)
+
+  if (existing) {
+    return existing
+  }
+
+  const generated =
+    crypto.randomUUID?.() ||
+    `visitor_${Date.now()}_${Math.random().toString(36).slice(2)}`
+
+  localStorage.setItem(storageKey, generated)
+
+  return generated
 }
+
+async function logProfileVisit(profile) {
+  try {
+    const res = await fetch(`${TRACKING_API_URL}/visits`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      keepalive: true,
+      body: JSON.stringify({
+        userKey: getVisitorKey(),
+        source: "quiz-submit",
+        path: window.location.pathname,
+        referrer: document.referrer,
+        profile,
+      }),
+    })
+
+    if (!res.ok) {
+      throw new Error(`Profile visit tracking failed with status ${res.status}`)
+    }
+  } catch (err) {
+    console.warn("Profile visit tracking failed:", err)
+  }
+}
+
+// ================================
+// MAIN APP
+// ================================
 
 export default function App() {
   const [step, setStep] = useState("q1")
-  const [profile, setProfile] = useState(createEmptyProfile())
-  const [results, setResults] = useState([])
-  const [usingGemini, setUsingGemini] = useState(false)
 
-  const set = (key) => (val) => setProfile((p) => ({ ...p, [key]: val }))
+  const [profile, setProfile] = useState(
+    createEmptyProfile()
+  )
+
+  const [results, setResults] = useState([])
+
+  const [usingGemini, setUsingGemini] =
+    useState(false)
+
+  const [clubs, setClubs] = useState([])
+
+  const [loadingClubs, setLoadingClubs] =
+    useState(true)
+
+  const [clubsError, setClubsError] =
+    useState("")
+
+  useEffect(() => {
+    const sessionKey = "clubmatch_visit_logged"
+
+    if (sessionStorage.getItem(sessionKey)) {
+      return
+    }
+
+    async function logVisit() {
+      try {
+        const res = await fetch(`${TRACKING_API_URL}/visits`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          keepalive: true,
+          body: JSON.stringify({
+            userKey: getVisitorKey(),
+            source: "frontend",
+            path: window.location.pathname,
+            referrer: document.referrer,
+          }),
+        })
+
+        if (!res.ok) {
+          throw new Error(`Visit tracking failed with status ${res.status}`)
+        }
+
+        sessionStorage.setItem(sessionKey, "true")
+      } catch (err) {
+        console.warn("Visit tracking failed:", err)
+      }
+    }
+
+    logVisit()
+  }, [])
+
+  // ================================
+  // FETCH CLUBS FROM BACKEND
+  // ================================
+
+  useEffect(() => {
+    async function fetchClubs() {
+      try {
+        const res = await fetch(`${API_URL}/clubs`)
+
+        if (!res.ok) {
+          throw new Error(`Request failed with status ${res.status}`)
+        }
+
+        const data = await res.json()
+
+        if (!Array.isArray(data)) {
+          throw new Error("Backend did not return a clubs array")
+        }
+
+        setClubs(data)
+        setClubsError("")
+      } catch (err) {
+        console.error(
+          "Failed to fetch clubs:",
+          err
+        )
+        setClubsError(
+          "Could not load clubs from the backend. Make sure Backend/server.js is running on port 5001."
+        )
+      } finally {
+        setLoadingClubs(false)
+      }
+    }
+
+    fetchClubs()
+  }, [])
+
+  // ================================
+  // PROFILE HELPER
+  // ================================
+
+  const set =
+    (key) =>
+    (val) =>
+      setProfile((p) => ({
+        ...p,
+        [key]: val,
+      }))
+
+  // ================================
+  // MAIN MATCHING FUNCTION
+  // ================================
 
   const handleFind = async () => {
-    const hasKey = !!GEMINI_KEY
-    setUsingGemini(hasKey)
+    setUsingGemini(USE_GEMINI)
+
     setStep("analyzing")
 
+    logProfileVisit(profile)
+
     try {
-      const matched = hasKey ? await analyzeWithGemini(profile) : localMatch(profile)
-      setResults(matched)
-      setTimeout(() => setStep("results"), 500)
-    } catch {
-      setResults(localMatch(profile))
-      setTimeout(() => setStep("results"), 500)
+      if (!clubs.length) {
+        throw new Error("No clubs loaded")
+      }
+
+      if (!USE_GEMINI) {
+        setResults(getMatches(profile, clubs))
+        setTimeout(() => {
+          setStep("results")
+        }, 500)
+        return
+      }
+
+      const res = await fetch(`${ANALYZE_URL}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile }),
+      })
+
+      if (!res.ok) {
+        throw new Error(`Analyze request failed with status ${res.status}`)
+      }
+
+      const data = await res.json()
+
+      const matched = parseRecommendations(data)
+
+      if (!Array.isArray(matched)) {
+        throw new Error(
+          data?.error || "Backend did not return recommendations"
+        )
+      }
+
+      const normalized = normalizeRecommendations(matched, clubs)
+
+      if (!normalized.length) {
+        throw new Error("Backend recommendations did not match loaded clubs")
+      }
+
+      setResults(normalized)
+      setTimeout(() => {
+        setStep("results")
+      }, 500)
+    } catch (err) {
+      console.error(err)
+
+      setUsingGemini(false)
+      setResults(getMatches(profile, clubs))
+
+      setTimeout(() => {
+        setStep("results")
+      }, 500)
     }
   }
 
+  // ================================
+  // RESTART
+  // ================================
+
   const restart = () => {
     setProfile(createEmptyProfile())
+
     setResults([])
+
     setStep("q1")
   }
 
-  if (step === "analyzing") {
+  // ================================
+  // LOADING STATE
+  // ================================
+
+  if (loadingClubs) {
     return (
-      <div style={{ ...APP_VARS, background: "#0D0B12", color: "#F0EBE0", fontFamily: "var(--font-body)" }}>
-        <AnalyzingStep profile={profile} usingGemini={usingGemini} modelName={GEMINI_MODEL} />
+      <div
+        style={{
+          ...APP_VARS,
+          background: "#0D0B12",
+          color: "#F0EBE0",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        Loading organizations...
       </div>
     )
   }
+
+  if (clubsError) {
+    return (
+      <div
+        style={{
+          ...APP_VARS,
+          background: "#0D0B12",
+          color: "#F0EBE0",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        <div
+          style={{
+            maxWidth: 520,
+            background: "#1A1820",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 6,
+            padding: 24,
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.62rem",
+              color: "#A8E237",
+              textTransform: "uppercase",
+              letterSpacing: "0.16em",
+              marginBottom: 10,
+            }}
+          >
+            Backend unavailable
+          </p>
+          <p style={{ color: "#F0EBE0", lineHeight: 1.6 }}>
+            {clubsError}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // ================================
+  // ANALYZING STEP
+  // ================================
+
+  if (step === "analyzing") {
+    return (
+      <div
+        style={{
+          ...APP_VARS,
+          background: "#0D0B12",
+          color: "#F0EBE0",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        <AnalyzingStep
+          profile={profile}
+          usingGemini={usingGemini}
+          modelName={GEMINI_MODEL}
+          clubs={clubs}
+        />
+      </div>
+    )
+  }
+
+  // ================================
+  // RESULTS STEP
+  // ================================
 
   if (step === "results") {
     return (
-      <div style={{ ...APP_VARS, background: "#0D0B12", color: "#F0EBE0", fontFamily: "var(--font-body)" }}>
-        <ResultsStep profile={profile} results={results} onRestart={restart} />
+      <div
+        style={{
+          ...APP_VARS,
+          background: "#0D0B12",
+          color: "#F0EBE0",
+          fontFamily: "var(--font-body)",
+        }}
+      >
+        <ResultsStep
+          profile={profile}
+          results={results}
+          clubs={clubs}
+          onRestart={restart}
+        />
       </div>
     )
   }
 
+  // ================================
+  // QUIZ FLOW
+  // ================================
+
   return (
-    <div style={{ ...APP_VARS, background: "#0D0B12", color: "#F0EBE0", fontFamily: "var(--font-body)" }}>
-      <QuizShell step={step} steps={QUIZ_STEPS}>
-        {step === "q1" && <Q1 value={profile.name} onChange={set("name")} onNext={() => setStep("q2")} />}
+    <div
+      style={{
+        ...APP_VARS,
+        background: "#0D0B12",
+        color: "#F0EBE0",
+        fontFamily: "var(--font-body)",
+      }}
+    >
+      <QuizShell
+        step={step}
+        steps={QUIZ_STEPS}
+      >
+        {step === "q1" && (
+          <Q1
+            value={profile.name}
+            onChange={set("name")}
+            onNext={() => setStep("q2")}
+          />
+        )}
+
         {step === "q2" && (
           <Q2
             value={profile.major}
@@ -128,6 +474,7 @@ export default function App() {
             onBack={() => setStep("q1")}
           />
         )}
+
         {step === "q3" && (
           <Q3
             value={profile.ethnicity}
@@ -136,15 +483,25 @@ export default function App() {
             onBack={() => setStep("q2")}
           />
         )}
+
         {step === "q4" && (
           <Q4
             value={profile.interests}
-            onChange={(v) => set("interests")(v)}
+            onChange={(v) =>
+              set("interests")(v)
+            }
             onNext={() => setStep("review")}
             onBack={() => setStep("q3")}
           />
         )}
-        {step === "review" && <ReviewStep profile={profile} onBack={() => setStep("q4")} onFind={handleFind} />}
+
+        {step === "review" && (
+          <ReviewStep
+            profile={profile}
+            onBack={() => setStep("q4")}
+            onFind={handleFind}
+          />
+        )}
       </QuizShell>
     </div>
   )

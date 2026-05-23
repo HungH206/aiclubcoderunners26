@@ -1,6 +1,4 @@
 // src/data/profile.js
-import { CLUBS } from "./clubs"
-
 export const createEmptyProfile = () => ({
   name: "",
   ethnicity: "",
@@ -68,6 +66,6 @@ export function computeMatch(profile, club) {
   return { club, score: Math.min(100, score), matchReasons: reasons }
 }
 
-export function getMatches(profile) {
-  return CLUBS.map((c) => computeMatch(profile, c)).sort((a, b) => b.score - a.score)
+export function getMatches(profile, clubs = []) {
+  return clubs.map((c) => computeMatch(profile, c)).sort((a, b) => b.score - a.score)
 }

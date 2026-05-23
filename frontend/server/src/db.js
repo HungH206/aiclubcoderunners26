@@ -1,21 +1,20 @@
 /* eslint-disable no-undef */
-import { MongoClient } from "mongodb"
+import mongoose from "mongoose"
 
-const uri = process.env.MONGODB_URI
-const dbName = process.env.MONGODB_DB || "clubmatch"
+const MONGO_URI =
+  process.env.MONGO_URI || "mongodb://127.0.0.1:27017/hoanghung_db_user"
 
-if (!uri) {
-  throw new Error("Missing MONGODB_URI. Add it to server/.env")
+export async function connectDB() {
+  try {
+    await mongoose.connect(MONGO_URI)
+
+    console.log("✅ MongoDB connected")
+  } catch (error) {
+    console.error("❌ MongoDB connection failed")
+    console.error(error)
+
+    process.exit(1)
+  }
 }
 
-let client
-let db
-
-export async function getDb() {
-  if (db) return db
-
-  client = new MongoClient(uri)
-  await client.connect()
-  db = client.db(dbName)
-  return db
-}
+export default mongoose

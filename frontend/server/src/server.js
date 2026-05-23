@@ -1,20 +1,43 @@
 /* eslint-disable no-undef */
-import "dotenv/config"
 import express from "express"
 import cors from "cors"
-import clubsRouter from "./routes/clubs.js"
-import visitsRouter from "./routes/visits.js"
+import dotenv from "dotenv"
+
+import { connectDB } from "./db.js"
+
+import clubsRoutes from "./routes/clubs.js"
+import analyzeRoutes from "./routes/analyze.js"
+import visitsRoutes from "./routes/visits.js"
+
+dotenv.config()
 
 const app = express()
-const port = process.env.PORT || 5050
 
+const PORT = process.env.PORT || 5002
+
+// Middleware
 app.use(cors())
-app.use(express.json({ limit: "1mb" }))
+app.use(express.json())
 
-app.get("/health", (_req, res) => res.json({ ok: true }))
-app.use("/api/clubs", clubsRouter)
-app.use("/api/visits", visitsRouter)
-
-app.listen(port, () => {
-  console.log(`Server listening on :${port}`)
+// Health check
+app.get("/", (req, res) => {
+  res.json({
+    message: "HCC Club Matcher API running",
+  })
 })
+
+// API routes
+app.use("/api/clubs", clubsRoutes)
+app.use("/api/analyze", analyzeRoutes)
+app.use("/api/visits", visitsRoutes)
+
+// Start server
+async function startServer() {
+  await connectDB()
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`)
+  })
+}
+
+startServer()

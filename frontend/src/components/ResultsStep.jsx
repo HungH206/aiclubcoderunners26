@@ -7,11 +7,19 @@ import ClubModal from "./ClubModal"
 import ChatAnalyzer from "./ChatAnalyzer"
 import ScoreRing from "./ScoreRing"
 
-export default function ResultsStep({ profile, results, onRestart }) {
+export default function ResultsStep({ profile, results, clubs = [], onRestart }) {
   const [selected, setSelected] = useState(null)
   const [view, setView] = useState("results")
   const top = results[0]
   const topCat = top ? CATEGORY_STYLE[top.club.category] ?? CATEGORY_STYLE.Professional : null
+  const resultsByClubId = new Map(results.map((result) => [result.club.id, result]))
+  const allClubResults = clubs.map((club) => (
+    resultsByClubId.get(club.id) ?? {
+      club,
+      score: 0,
+      matchReasons: ["Available organization"],
+    }
+  ))
 
   return (
     <div style={{ minHeight: "100vh", padding: "32px 24px 60px" }} className="lg:px-12">
@@ -66,6 +74,7 @@ export default function ResultsStep({ profile, results, onRestart }) {
         {[
           { key: "results", label: "Results" },
           { key: "chat", label: "Analyzer Chat" },
+          { key: "all-clubs", label: "All Clubs" },
         ].map((tab) => {
           const active = view === tab.key
           return (
@@ -235,6 +244,33 @@ export default function ResultsStep({ profile, results, onRestart }) {
       )}
 
       {view === "chat" && <ChatAnalyzer profile={profile} results={results} />}
+
+      {view === "all-clubs" && (
+        <>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <p
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.56rem",
+                color: "#8C8890",
+                textTransform: "uppercase",
+                letterSpacing: "0.18em",
+              }}
+            >
+              All {allClubResults.length} Clubs
+            </p>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.56rem", color: "#8C8890" }}>
+              {results.length} analyzed matches
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {allClubResults.map((r, i) => (
+              <ClubCard key={r.club.id} result={r} rank={i + 1} onClick={() => setSelected(r)} />
+            ))}
+          </div>
+        </>
+      )}
 
       {selected && <ClubModal result={selected} onClose={() => setSelected(null)} />}
     </div>
