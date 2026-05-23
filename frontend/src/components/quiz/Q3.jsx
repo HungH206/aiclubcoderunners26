@@ -12,7 +12,7 @@ export default function Q3({ value, onChange, onNext, onBack }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.38, ease: [0.25, 0.46, 0.45, 0.94] }}
     >
-      <QLabel num="03 --" question={`WHAT'S YOUR\nBACKGROUND?`} hint="Helps us find clubs with cultural ties that match you." />
+      <QLabel num="03 --" question={`WHAT'S YOUR\nNATIONALITY?`} hint="Helps us find clubs with cultural ties that match you." />
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         {ETHNICITY_OPTIONS.map((opt) => {
           const active = value === opt

@@ -22,6 +22,7 @@ const clubs = JSON.parse(
 )
 
 const app = express()
+const PORT = process.env.PORT || 5001
 
 app.use(cors())
 
@@ -36,8 +37,8 @@ app.get("/api/clubs", (req, res) => {
   res.json(clubs)
 })
 
-app.listen(5001, () => {
+app.listen(PORT, () => {
   console.log(
-    "Server running on port 5001"
+    `Server running on port ${PORT}`
   )
 })
