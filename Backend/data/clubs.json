@@ -1,0 +1,374 @@
+[
+  {
+    "id": "csa",
+    "name": "Computer Science Association",
+    "shortName": "CSA",
+    "description": "Our mission is to empower students through collaboration, hands-on learning, and professional development. Whether you're passionate about coding, cybersecurity, AI, or just curious about the tech world, CSA is the place to connect, grow, and lead the future of innovation.",
+    "website": "https://hcc-csa.org/",
+    "tags": [
+      "coding",
+      "ai",
+      "cybersecurity",
+      "hackathon",
+      "professional development",
+      "technology",
+      "programming",
+      "workshops"
+    ],
+    "ethnicFocus": ["all"],
+    "majorFocus": [
+      "Computer Science",
+      "Information Technology",
+      "Engineering",
+      "Mathematics",
+      "Data Science",
+      "CIS"
+    ],
+    "events": [
+      {
+        "name": "HackHCC CodeRunners",
+        "date": "Fri May 22 – Sat May 23, 2026 · 9 AM–3 PM CDT",
+        "location": "West Houston Institute Auditorium"
+      }
+    ],
+    "officers": [
+      { "role": "Advisor", "name": "Samir Saber" },
+      { "role": "Advisor", "name": "Alondra Avila" }
+    ],
+    "category": "Technology"
+  },
+  {
+    "id": "vsa",
+    "name": "Vietnamese Student Association",
+    "shortName": "VSA",
+    "description": "Since 1979, UH VSA has grown into one of the largest Asian-interest student organizations on campus. Our mission is to preserve and promote Vietnamese culture, give back to the community, and encourage unity among people of all identities and backgrounds.",
+    "website": "https://www.uhvsa.com/",
+    "tags": [
+      "culture",
+      "community",
+      "leadership",
+      "service",
+      "social",
+      "vietnamese",
+      "asian",
+      "cultural events"
+    ],
+    "ethnicFocus": ["Vietnamese", "Asian"],
+    "majorFocus": ["all"],
+    "events": [
+      {
+        "name": "UHVSA Social",
+        "date": "Mon Aug 24, 2026 · 2:30–8:00 PM CDT",
+        "location": "Space City, Houston"
+      }
+    ],
+    "officers": [
+      { "role": "Advisor", "name": "Doan Nguyen" },
+      { "role": "Advisor", "name": "Nam Nguyen" }
+    ],
+    "address": "4465 University Dr. Mailbox 53, Houston, TX 77204",
+    "category": "Cultural"
+  },
+  {
+    "id": "hlba",
+    "name": "Hispanic/Latino Business Association",
+    "shortName": "HLBA",
+    "description": "HLBA connects Hispanic and Latino students passionate about business, leadership, and entrepreneurship. We provide networking opportunities, mentorship, and professional events bridging academia and the business world.",
+    "website": "https://hlba.org/",
+    "tags": [
+      "business",
+      "networking",
+      "entrepreneurship",
+      "leadership",
+      "professional development",
+      "social",
+      "hispanic",
+      "latino",
+      "mixers"
+    ],
+    "ethnicFocus": ["Hispanic", "Latino"],
+    "majorFocus": ["Business", "Marketing", "Finance", "Accounting", "Management", "Economics"],
+    "events": [
+      {
+        "name": "Spring Networking Mixer",
+        "date": "Thu Jun 5, 2026 · 6:00 PM CDT",
+        "location": "Business Building Atrium, Room 214"
+      }
+    ],
+    "officers": [
+      { "role": "President", "name": "Carlos Reyes" },
+      { "role": "VP", "name": "Maria Gutierrez" },
+      { "role": "Advisor", "name": "Dr. Elena Torres" }
+    ],
+    "category": "Cultural"
+  },
+  {
+    "id": "swe",
+    "name": "Society of Women Engineers",
+    "shortName": "SWE",
+    "description": "UH section of a national society about empowering women in engineering and STEM related fields. All genders are welcome!",
+    "website": "http://www.sweuh.com/",
+    "tags": [
+      "stem",
+      "women",
+      "mentorship",
+      "workshops",
+      "research",
+      "professional development",
+      "networking",
+      "coding"
+    ],
+    "ethnicFocus": ["all"],
+    "majorFocus": [
+      "Engineering",
+      "Computer Science",
+      "Biology",
+      "Chemistry",
+      "Physics",
+      "Mathematics",
+      "Data Science"
+    ],
+    "events": [
+      {
+        "name": "Annual STEM Symposium",
+        "date": "Sat Jul 12, 2026 · 10:00 AM CDT",
+        "location": "Science Center Hall B"
+      }
+    ],
+    "officers": [
+      { "role": "VP Internal", "name": "Joann Pham" },
+      { "role": "VP External", "name": "Ana Alvarez" },
+      { "role": "Advisor", "name": "Christiana Chang" }
+    ],
+    "category": "Professional"
+  },
+  {
+    "id": "ceo",
+    "name": "Collegiate Entrepreneurs' Organization",
+    "shortName": "CEO",
+    "description": "The Collegiate Entrepreneurs’ Organization creates connections and experiences that help our members develop and incubate ideas. CEO’s mission as a student organization in the Bauer College of Business is to support, nurture and aid student's in launching successful business ventures by providing access to pivotal networking opportunities and valuable mentorship from our sponsors. All majors welcome.",
+    "website": "https://www.uhceo.org/",
+    "tags": [
+      "entrepreneurship",
+      "startups",
+      "innovation",
+      "pitch",
+      "networking",
+      "business",
+      "technology",
+      "workshops",
+      "hackathon"
+    ],
+    "ethnicFocus": ["all"],
+    "majorFocus": ["all"],
+    "events": [
+      {
+        "name": "Pitch Night 2026",
+        "date": "Wed Jun 18, 2026 · 7:00 PM CDT",
+        "location": "Innovation Hub, Floor 3"
+      }
+    ],
+    "officers": [
+      { "role": "President", "name": "Alex Chen" },
+      { "role": "Director", "name": "Fatima Hassan" },
+      { "role": "Advisor", "name": "Prof. James Park" }
+    ],
+    "category": "Professional"
+  },
+  {
+    "id": "asu",
+    "name": "African Student Union",
+    "shortName": "ASU",
+    "description": "African Student Union is dedicated to the education and support of African culture by Africans and Non-Africans alike. ASU serves to create a home away from home for Africans and Non-Africans alike. Render assistance to new Africans settling down at HCC, and in their general integration into the community.",
+    "website": "https://asu-uh.org/",
+    "tags": [
+      "culture",
+      "community",
+      "african",
+      "service",
+      "social",
+      "cultural events",
+      "leadership",
+      "diversity"
+    ],
+    "ethnicFocus": ["African", "Black"],
+    "majorFocus": ["all"],
+    "events": [
+      {
+        "name": "Africa Day Cultural Showcase",
+        "date": "Fri May 29, 2026 · 5:00 PM CDT",
+        "location": "Student Center Ballroom"
+      }
+    ],
+    "officers": [
+      { "role": "President", "name": "Kwame Asante" },
+      { "role": "Cultural Chair", "name": "Amara Diallo" },
+      { "role": "Advisor", "name": "Dr. Chinwe Obi" }
+    ],
+    "category": "Cultural"
+  },
+  {
+    "id": "gaming",
+    "name": "Esports & Gaming Club",
+    "shortName": "EGC",
+    "description": "Whether you're a casual gamer or a competitive esports athlete, EGC is your community. We compete in collegiate esports leagues, host tournaments, and connect gaming culture with tech, design, and content creation.",
+    "website": "https://egc-hcc.org/",
+    "tags": [
+      "gaming",
+      "esports",
+      "tournaments",
+      "technology",
+      "community",
+      "social",
+      "content creation"
+    ],
+    "ethnicFocus": ["all"],
+    "majorFocus": ["all"],
+    "events": [
+      {
+        "name": "Spring Gaming Tournament",
+        "date": "Sat Jun 7, 2026 · 12:00 PM CDT",
+        "location": "Student Activities Center, Lab 101"
+      }
+    ],
+    "officers": [
+      { "role": "President", "name": "Tyler Nguyen" },
+      { "role": "Tournament Director", "name": "Zoe Rivera" },
+      { "role": "Advisor", "name": "Prof. Marcus Webb" }
+    ],
+    "category": "Recreation"
+  },
+  {
+    "id": "art",
+    "name": "Art & Design Collective",
+    "shortName": "ADC",
+    "description": "The Art & Design Collective is a creative hub for students passionate about visual art, graphic design, illustration, and digital media. We exhibit work, collaborate on projects, and connect with local Houston creatives.",
+    "website": "https://adc-hcc.org/",
+    "tags": [
+      "art",
+      "design",
+      "creative",
+      "illustration",
+      "digital media",
+      "visual arts",
+      "exhibitions",
+      "workshops"
+    ],
+    "ethnicFocus": ["all"],
+    "majorFocus": [
+      "Art",
+      "Design",
+      "Architecture",
+      "Graphic Design",
+      "Digital Media",
+      "Photography"
+    ],
+    "events": [
+      {
+        "name": "Spring Exhibition Opening",
+        "date": "Fri Jun 6, 2026 · 6:00 PM CDT",
+        "location": "Gallery 44, Arts Building"
+      }
+    ],
+    "officers": [
+      { "role": "President", "name": "Luna Castillo" },
+      { "role": "Exhibitions Chair", "name": "Ravi Singh" },
+      { "role": "Advisor", "name": "Prof. Sophie Laurent" }
+    ],
+    "category": "Arts"
+  },
+  {
+    "id": "nsa",
+    "name": "Nursing Students Alliance",
+    "shortName": "NSA",
+    "description": "NSA supports nursing students through academic resources, clinical shadowing opportunities, and peer mentorship. We collaborate with healthcare professionals to provide hands-on experience and build compassionate leaders.",
+    "website": "https://nsa-hcc.org/",
+    "tags": [
+      "nursing",
+      "healthcare",
+      "clinical",
+      "mentorship",
+      "service",
+      "pre-med",
+      "professional development"
+    ],
+    "ethnicFocus": ["all"],
+    "majorFocus": ["Nursing", "Healthcare", "Pre-Med", "Biology", "Public Health"],
+    "events": [
+      {
+        "name": "Nursing Career Fair",
+        "date": "Thu Jun 19, 2026 · 2:00 PM CDT",
+        "location": "Health Science Building, Room 202"
+      }
+    ],
+    "officers": [
+      { "role": "President", "name": "Maya Johnson" },
+      { "role": "VP", "name": "Leo Tran" },
+      { "role": "Advisor", "name": "Dr. Patricia Ruiz" }
+    ],
+    "category": "Health Sciences"
+  },
+  {
+    "id": "prelaw",
+    "name": "Pre-Law Society",
+    "shortName": "PLS",
+    "description": "Pre-Law Society guides undergraduates through the law school application process and builds legal literacy. We host mock trials, LSAT prep sessions, legal clinic visits, and attorney panels.",
+    "website": "https://prelaw-society.org/",
+    "tags": [
+      "law",
+      "LSAT",
+      "mock trial",
+      "pre-law",
+      "professional development",
+      "networking",
+      "advocacy"
+    ],
+    "ethnicFocus": ["all"],
+    "majorFocus": [
+      "Political Science",
+      "History",
+      "English",
+      "Philosophy",
+      "Criminal Justice",
+      "Pre-Law"
+    ],
+    "events": [
+      {
+        "name": "Attorney Panel: Paths to Law",
+        "date": "Tue Jun 10, 2026 · 4:00 PM CDT",
+        "location": "Humanities Building 310"
+      }
+    ],
+    "officers": [
+      { "role": "President", "name": "Isabel Moreno" },
+      { "role": "Secretary", "name": "David Park" },
+      { "role": "Advisor", "name": "Prof. Michelle Grant" }
+    ],
+    "category": "Academic"
+  },
+  {
+    "id": "student-life",
+    "name": "Department of Student Life - All Campus",
+    "shortName": "DSL",
+    "description": "Student Life offers programs, services, and activities to build leadership, community, and campus connection. This semester includes free events like Superbowl and Mardi Gras parties, Black History Month programs, and Life Hacking 101 Lunch and Learns to grow soft skills and professional readiness.",
+    "website": "https://www.hccs.edu/",
+    "tags": [
+      "student life",
+      "leadership",
+      "community",
+      "events",
+      "engagement",
+      "campus",
+      "soft skills",
+      "professional development"
+    ],
+    "ethnicFocus": ["all"],
+    "majorFocus": ["all"],
+    "events": [],
+    "officers": [
+      { "role": "Advisor", "name": "Kyle Chalker" },
+      { "role": "Advisor", "name": "Annie Tsui" }
+    ],
+    "category": "Campus Life"
+  }
+]
