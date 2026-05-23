@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node src/server.js",
+    "start": "node src/server.js",
     "init:db": "node scripts/init-db.js",
     "seed:clubs": "node scripts/seed-clubs.js"
   },
