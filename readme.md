@@ -1,33 +1,31 @@
-# AI Club Analyzer 🎓✨
+Inspiration
+Its about a story about a young student in community college who transferred to a university, wished for a service that can help students to find the organization they like. To engage more.
 
-AI Club Analyzer is a highly responsive, modern, and intelligent web application designed to help university students map their interests, academic major, and cultural backgrounds directly into aligned campus organizations, active workshop calendars, and networking socials.
+What it does
+Firstly, the user will walkthrough a questionnaire about their learning and their interests and lastly their ethnicity. Secondly, the AI analyzer will take those inputs and give the students the interest and the best organization that they may like the most. Another thing about this technology we also allow transparency of all clubs. To be available to the knowledge of students. As they decide what kind of journey they want to pursue. Lastly, an AI chatbot is also available to help students become more decisive in their decision-making.
 
-## 🚀 Concept & Features
+How we built it
+We set a Vite and React program for the main page, also the functionality has been built with JavaScript and Express. We also used Google Gemini 2.5 flash and MangoDB for developing the AI analyzer and the database entry for visitors checking our website. Our website is being hosted by a GoDaddy registry domain and we used Render hosting backend services for Gemini and MangoDB
 
-*   **Dynamic Matching Diagnostic**: Input your name, choose from pre-populated or customized academic majors (from Computer Science to Business and STEM), select cultural and community affiliations, and toggle focus interests.
-*   **Aesthetic "Geometric Balance" Theme**: A polished contemporary workspace boasting precise container geometries, high-contrast grids, vibrant micro-badges, and micro-interactive custom modals.
-*   **Dual Matching Engine (High-Fidelity Offline Fallback)**:
-    *   *Remote AI Pipeline*: Integrates with **Gemini v3.5 Flash** server-side, parsing student parameters against the active database index.
-    *   *Local Fallback Counselor*: Seamlessly bridges connection exceptions or restricted API keys using a weighted affinity algorithm to secure 100% application uptime.
-*   **Schedules & Actions Newsletter**: Sorts upcoming hackathons, professional panel summits, and mixers into a chronological calendar list with custom direct-action links.
-*   **Dynamic Group Registration**: Submit custom student organization profiles through the "+ Register Group" panel to inject new dynamic clubs instantly into the active matcher pool.
-*   **Analytics Summary Margin**: Floating real-time stats tracking alignment node density, mixer calendars, workshops, and active database counts.
+Challenges we ran into
+For the AI technology we were opting to build with postgreSQL we were opting for a smaller use case with no SQL for local college students. So that change our infrastructure that makes it easier to build.
 
-## 🛠️ Architecture
+Accomplishments that we're proud of
+We learned to build with AI and see how web development communicates with backend code. To then develop a full-stack application with AI. This is our very first-time using Gemini and MangoDB as the main parts of our build. We love our website.
 
-*   **Frontend**: React (v19) + Vite, styled using deep Tailwind utility classes and elegant Lucide React iconography.
-*   **Backend Proxy Service**: Node.js Express server (`server.ts`) hosting structured campus records, exposing `/api/analyze` pipelines, proxying the modern Google Gen AI SDK seamlessly, and delivering static client bundles.
-*   **Database Schema**: Dynamic, extensible in-memory JSON registry model tracking organizational missions, officer councils, tagged majors, distinct ethnicities, and upcoming public event schedules.
+What we learned
+How to use cloud technology and interact with AI.
 
-## 📦 Run & Development
+What's next for Clubmatcher AI
+Make as a business to help other students do better and engage with their community.
 
-### Local Installation
-1. Install node dependencies:
-   ```bash
-   npm install
-   ```
-2. Start the development server (runs full-stack Express + client bundle via tsx):
-   ```bash
-   npm run dev
-   ```
-3. Open the browser to: `http://localhost:3000`
+Built With
+express.js
+gemini
+godaddy
+javascript
+mongodb
+python
+react
+render
+vite
